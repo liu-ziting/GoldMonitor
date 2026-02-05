@@ -118,7 +118,7 @@
                     <span class="dot-separator"></span>
                     <span>数据来源: jin.20021002.xyz</span>
                 </div>
-                <div class="footer-copyright">© 2026 GOLD_MONITOR_SYS. v1.0.0</div>
+                <div class="footer-copyright">© 2026 <a href="https://github.com/liu-ziting/" target="_blank" class="author-link">github.com/liu-ziting</a></div>
             </div>
         </footer>
     </div>
@@ -568,6 +568,17 @@ onUnmounted(() => {
 .footer-copyright {
     color: var(--text-secondary);
     font-size: 14px;
+}
+
+.author-link {
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.author-link:hover {
+    color: var(--primary-color);
 }
 
 @media (max-width: 768px) {
