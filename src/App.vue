@@ -393,10 +393,7 @@ onUnmounted(() => {
 
 .selected-card {
     border-color: var(--primary-color) !important;
-}
-
-.selected-card::before {
-    background: var(--primary-color) !important;
+    box-shadow: 0 4px 12px rgba(255, 118, 117, 0.1);
 }
 
 /* AI Insights Styles */
@@ -494,13 +491,12 @@ onUnmounted(() => {
 }
 
 .analysis-card {
-    padding: 0 !important;
+    padding: 32px 0 0 !important;
     overflow: hidden;
 }
 
 .analysis-controls {
-    padding: 24px 32px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 16px 32px 24px;
     display: flex;
     align-items: center;
     gap: 20px;
@@ -654,19 +650,30 @@ onUnmounted(() => {
     }
 
     .analysis-controls {
-        padding: 16px;
+        padding: 12px 16px 16px;
         flex-direction: column;
         align-items: flex-start;
+        gap: 12px;
+    }
+
+    .control-label {
+        font-size: 13px;
+        margin-bottom: 4px;
     }
 
     .bank-selector {
-        width: 100%;
+        width: calc(100% + 32px);
+        margin: 0 -16px;
+        padding: 0 16px 8px;
         overflow-x: auto;
-        padding-bottom: 8px;
         -webkit-overflow-scrolling: touch;
+        display: flex;
+        gap: 8px;
     }
 
     .selector-btn {
+        padding: 6px 12px;
+        font-size: 12px;
         white-space: nowrap;
         flex-shrink: 0;
     }

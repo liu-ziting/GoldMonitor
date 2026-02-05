@@ -206,6 +206,7 @@ const handleResize = () => {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 32px;
+    padding-top: 8px; /* Add space for the traffic light dots */
 }
 
 .chart-title {

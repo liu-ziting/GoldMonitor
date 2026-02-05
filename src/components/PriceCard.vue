@@ -48,6 +48,7 @@ const isUp = computed(() => (props.data?.change ?? 0) >= 0)
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-top: 4px; /* Space for decor dots */
 }
 
 .bank-name {
