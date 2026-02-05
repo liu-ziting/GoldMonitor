@@ -18,7 +18,7 @@
                     </div>
                     <button class="terminal-btn" @click="fetchAllPrices" :disabled="isRefreshing">
                         <reload-outlined :spin="isRefreshing" />
-                        <span>刷新数据</span>
+                        <span>刷新</span>
                     </button>
                 </div>
             </div>
@@ -355,8 +355,7 @@ onUnmounted(() => {
 }
 
 .online-count {
-    border-left: 1px solid rgba(0, 184, 148, 0.3);
-    padding-left: 8px;
+    /* Removed border and padding since it's the only child now */
 }
 
 .main-content {
@@ -618,13 +617,9 @@ onUnmounted(() => {
         font-size: 11px;
     }
 
-    .status-pill span:first-child {
-        display: none; /* Hide "就绪" text on mobile */
-    }
-
     .online-count {
-        padding-left: 4px;
-        border-left: 1px solid rgba(0, 184, 148, 0.2);
+        padding-left: 0;
+        border-left: none;
     }
 
     .terminal-btn {
