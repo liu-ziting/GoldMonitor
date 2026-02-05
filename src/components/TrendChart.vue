@@ -36,6 +36,7 @@ const props = defineProps<{
     data: ChartDataPoint[]
     title?: string
     loading?: boolean
+    unit?: string
 }>()
 
 const chartRef = ref<HTMLElement | null>(null)
@@ -72,7 +73,7 @@ const updateChart = () => {
                     <div style="color: #8c8c8c; font-size: 12px; margin-bottom: 4px;">${time}</div>
                     <div style="display: flex; align-items: baseline; gap: 4px;">
                         <span style="font-weight: 600; font-size: 16px;">${item.value[1].toFixed(2)}</span>
-                        <span style="color: #8c8c8c; font-size: 12px;">CNY/g</span>
+                        <span style="color: #8c8c8c; font-size: 12px;">${props.unit || 'CNY/g'}</span>
                     </div>
                 `
             }
@@ -161,7 +162,7 @@ const updateChart = () => {
                         backgroundColor: 'rgba(255,255,255,0.8)',
                         padding: [4, 6],
                         borderRadius: 4,
-                        formatter: (params: any) => `${params.name}: ${params.value.toFixed(2)}`
+                        formatter: (params: any) => `${params.name}: ${params.value.toFixed(2)} ${props.unit || 'CNY/g'}`
                     }
                 }
             }
@@ -300,4 +301,3 @@ const handleResize = () => {
     }
 }
 </style>
-
