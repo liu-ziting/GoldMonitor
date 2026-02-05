@@ -1,21 +1,27 @@
 :root {
-  --primary-color: #faad14;
-  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  --card-bg: rgba(255, 255, 255, 0.8);
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --text-main: #2d3436;
-  --text-secondary: #636e72;
+  --primary-color: #ff5c00;
+  /* Vibrant Orange */
+  --accent-green: #00d1b2;
+  --accent-blue: #3273dc;
+  --bg-color: #ffffff;
+  --grid-color: rgba(0, 0, 0, 0.05);
+  --border-color: #e0e0e0;
+  --text-main: #1a1a1a;
+  --text-secondary: #666666;
   --up-color: #ff4d4f;
   --down-color: #52c41a;
+  --mono-font: 'Fira Code', 'Roboto Mono', monospace;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: var(--bg-gradient);
-  background-attachment: fixed;
+  background-color: var(--bg-color);
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 20px 20px;
   min-height: 100vh;
   color: var(--text-main);
 }
@@ -24,29 +30,66 @@ body {
   width: 100%;
 }
 
+/* Modern Window Style (Ref Image) */
+.window-frame {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.05);
+}
+
+.window-header {
+  height: 32px;
+  background: #f8f8f8;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 6px;
+}
+
+.window-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot-red {
+  background: #ff5f56;
+}
+
+.dot-yellow {
+  background: #ffbd2e;
+}
+
+.dot-green {
+  background: #27c93f;
+}
+
+.window-title {
+  margin-left: 8px;
+  font-family: var(--mono-font);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
 /* Ant Design Override */
 .ant-layout {
   background: transparent !important;
 }
 
 .ant-card {
-  background: var(--card-bg) !important;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07) !important;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-}
-
-.ant-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.12) !important;
+  background: #ffffff !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.02) !important;
 }
 
 .ant-layout-header {
-  background: rgba(255, 255, 255, 0.6) !important;
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 40px !important;
 }
 
 .ant-btn-primary {

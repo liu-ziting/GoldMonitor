@@ -1,38 +1,45 @@
 <template>
-    <a-card :loading="loading" class="price-card" :bordered="false">
-        <div class="card-inner">
+    <div class="window-frame price-card" :class="{ 'is-loading': loading }">
+        <div class="window-header">
+            <div class="window-dot dot-red"></div>
+            <div class="window-dot dot-yellow"></div>
+            <div class="window-dot dot-green"></div>
+            <div class="window-title">{{ data?.symbol || 'data' }}.json</div>
+        </div>
+        <div class="card-content">
             <div class="card-top">
                 <div class="bank-info">
-                    <span class="bank-name">{{ data?.name || '-' }}</span>
-                    <span class="bank-symbol">{{ data?.symbol }}</span>
+                    <span class="bank-name">{{ data?.name || 'Loading...' }}</span>
                 </div>
                 <div class="trend-tag" :class="isUp ? 'tag-up' : 'tag-down'">
-                    <component :is="isUp ? CaretUpOutlined : CaretDownOutlined" />
-                    {{ Math.abs(data?.change_pct || 0).toFixed(2) }}%
+                    <span class="mono-text">{{ isUp ? '▲' : '▼' }} {{ Math.abs(data?.change_pct || 0).toFixed(2) }}%</span>
                 </div>
             </div>
 
             <div class="price-main">
-                <span class="currency">{{ data?.currency }}</span>
-                <span class="price-value">{{ data?.price.toFixed(2) }}</span>
+                <div class="price-row">
+                    <span class="code-label">price:</span>
+                    <span class="price-value mono-text">{{ data?.price.toFixed(2) || '0.00' }}</span>
+                    <span class="currency">{{ data?.currency }}</span>
+                </div>
+                <div class="price-row">
+                    <span class="code-label">change:</span>
+                    <span class="change-value mono-text" :class="isUp ? 'text-up' : 'text-down'"> {{ isUp ? '+' : '' }}{{ data?.change.toFixed(2) || '0.00' }} </span>
+                </div>
             </div>
 
             <div class="card-footer">
-                <div class="change-info">
-                    <span class="label">涨跌</span>
-                    <span class="value" :class="isUp ? 'text-up' : 'text-down'"> {{ isUp ? '+' : '' }}{{ data?.change.toFixed(2) }} </span>
-                </div>
-                <div class="time-info">
-                    {{ data?.update_time }}
-                </div>
+                <div class="time-info mono-text"><span class="code-label">updated_at:</span> "{{ data?.update_time || '-' }}"</div>
             </div>
         </div>
-    </a-card>
+        <div v-if="loading" class="loading-overlay">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { CaretUpOutlined, CaretDownOutlined } from '@ant-design/icons-vue'
 import type { GoldPriceData } from '../types/gold'
 
 const props = defineProps<{
@@ -45,11 +52,20 @@ const isUp = computed(() => (props.data?.change ?? 0) >= 0)
 
 <style scoped>
 .price-card {
-    overflow: hidden;
     position: relative;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    background: #ffffff;
 }
 
-.card-inner {
+.price-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.1);
+}
+
+.card-content {
+    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -58,106 +74,113 @@ const isUp = computed(() => (props.data?.change ?? 0) >= 0)
 .card-top {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-}
-
-.bank-info {
-    display: flex;
-    flex-direction: column;
+    align-items: center;
 }
 
 .bank-name {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
     color: var(--text-main);
 }
 
-.bank-symbol {
-    font-size: 12px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
 .trend-tag {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    border-radius: 8px;
+    padding: 2px 8px;
+    border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
 }
 
 .tag-up {
-    background: rgba(255, 77, 79, 0.1);
-    color: var(--up-color);
+    background: #e6fffa;
+    color: var(--down-color);
+    border: 1px solid var(--down-color);
 }
 
 .tag-down {
-    background: rgba(82, 196, 26, 0.1);
-    color: var(--down-color);
+    background: #fff5f5;
+    color: var(--up-color);
+    border: 1px solid var(--up-color);
 }
 
 .price-main {
     display: flex;
-    align-items: baseline;
-    gap: 4px;
-}
-
-.currency {
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--text-secondary);
-}
-
-.price-value {
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: -1px;
-    color: var(--text-main);
-}
-
-.card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 4px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.change-info {
-    display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 8px;
 }
 
-.label {
-    font-size: 12px;
+.price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.code-label {
+    font-family: var(--mono-font);
+    font-size: 13px;
+    color: #a0aec0;
+}
+
+.mono-text {
+    font-family: var(--mono-font);
+}
+
+.price-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.currency {
+    font-size: 14px;
     color: var(--text-secondary);
 }
 
-.value {
-    font-size: 14px;
+.change-value {
+    font-size: 16px;
     font-weight: 600;
 }
 
+.card-footer {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-color);
+}
+
 .time-info {
-    font-size: 11px;
-    color: #bfbfbf;
+    font-size: 12px;
+    color: #718096;
 }
 
 .text-up {
-    color: var(--up-color);
-}
-.text-down {
     color: var(--down-color);
 }
+.text-down {
+    color: var(--up-color);
+}
 
-/* Animation */
-.price-value {
-    transition: all 0.5s ease;
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>
 
