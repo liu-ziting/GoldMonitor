@@ -1,37 +1,23 @@
 <template>
-    <div class="window-frame price-card" :class="{ 'is-loading': loading }">
-        <div class="window-header">
-            <div class="window-dot dot-red"></div>
-            <div class="window-dot dot-yellow"></div>
-            <div class="window-dot dot-green"></div>
-            <div class="window-title">{{ data?.symbol || 'data' }}.json</div>
+    <div class="minimal-card price-card" :class="{ 'is-loading': loading }">
+        <div class="card-header">
+            <span class="bank-name">{{ data?.name || 'Loading...' }}</span>
+            <div class="trend-tag" :class="isUp ? 'tag-up' : 'tag-down'">{{ isUp ? '▲' : '▼' }} {{ Math.abs(data?.change_pct || 0).toFixed(2) }}%</div>
         </div>
-        <div class="card-content">
-            <div class="card-top">
-                <div class="bank-info">
-                    <span class="bank-name">{{ data?.name || 'Loading...' }}</span>
-                </div>
-                <div class="trend-tag" :class="isUp ? 'tag-up' : 'tag-down'">
-                    <span class="mono-text">{{ isUp ? '▲' : '▼' }} {{ Math.abs(data?.change_pct || 0).toFixed(2) }}%</span>
-                </div>
-            </div>
 
-            <div class="price-main">
-                <div class="price-row">
-                    <span class="code-label">price:</span>
-                    <span class="price-value mono-text">{{ data?.price.toFixed(2) || '0.00' }}</span>
-                    <span class="currency">{{ data?.currency }}</span>
-                </div>
-                <div class="price-row">
-                    <span class="code-label">change:</span>
-                    <span class="change-value mono-text" :class="isUp ? 'text-up' : 'text-down'"> {{ isUp ? '+' : '' }}{{ data?.change.toFixed(2) || '0.00' }} </span>
-                </div>
+        <div class="price-section">
+            <div class="price-value-container">
+                <span class="price-value">{{ data?.price.toFixed(2) || '0.00' }}</span>
+                <span class="currency">{{ data?.currency }}</span>
             </div>
-
-            <div class="card-footer">
-                <div class="time-info mono-text"><span class="code-label">updated_at:</span> "{{ data?.update_time || '-' }}"</div>
-            </div>
+            <div class="change-info" :class="isUp ? 'text-up' : 'text-down'">{{ isUp ? '+' : '' }}{{ data?.change.toFixed(2) || '0.00' }}</div>
         </div>
+
+        <div class="card-footer">
+            <span class="update-label">最后更新</span>
+            <span class="update-time">{{ data?.update_time || '-' }}</span>
+        </div>
+
         <div v-if="loading" class="loading-overlay">
             <div class="loading-spinner"></div>
         </div>
@@ -53,102 +39,88 @@ const isUp = computed(() => (props.data?.change ?? 0) >= 0)
 <style scoped>
 .price-card {
     position: relative;
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-    background: #ffffff;
-}
-
-.price-card:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.1);
-}
-
-.card-content {
-    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
 }
 
-.card-top {
+.card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .bank-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-main);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
 .trend-tag {
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
     font-weight: 600;
 }
 
 .tag-up {
-    background: #e6fffa;
+    background: #f6ffed;
     color: var(--down-color);
-    border: 1px solid var(--down-color);
 }
 
 .tag-down {
-    background: #fff5f5;
+    background: #fff1f0;
     color: var(--up-color);
-    border: 1px solid var(--up-color);
 }
 
-.price-main {
+.price-section {
     display: flex;
     flex-direction: column;
-    gap: 8px;
 }
 
-.price-row {
+.price-value-container {
     display: flex;
     align-items: baseline;
-    gap: 8px;
-}
-
-.code-label {
-    font-family: var(--mono-font);
-    font-size: 13px;
-    color: #a0aec0;
-}
-
-.mono-text {
-    font-family: var(--mono-font);
+    gap: 6px;
 }
 
 .price-value {
-    font-size: 28px;
+    font-size: 36px;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--text-main);
+    line-height: 1.2;
 }
 
 .currency {
-    font-size: 14px;
+    font-size: 16px;
     color: var(--text-secondary);
+    font-weight: 500;
 }
 
-.change-value {
+.change-info {
     font-size: 16px;
     font-weight: 600;
+    margin-top: 4px;
 }
 
 .card-footer {
-    margin-top: 8px;
-    padding-top: 12px;
-    border-top: 1px dashed var(--border-color);
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
 }
 
-.time-info {
+.update-label {
     font-size: 12px;
-    color: #718096;
+    color: var(--text-secondary);
+}
+
+.update-time {
+    font-size: 12px;
+    color: var(--text-main);
+    font-weight: 500;
 }
 
 .text-up {
@@ -161,17 +133,18 @@ const isUp = computed(() => (props.data?.change ?? 0) >= 0)
 .loading-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(2px);
+    border-radius: 12px;
+    z-index: 10;
 }
 
 .loading-spinner {
     width: 24px;
     height: 24px;
-    border: 2px solid var(--border-color);
+    border: 2px solid #f0f0f0;
     border-top-color: var(--primary-color);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;

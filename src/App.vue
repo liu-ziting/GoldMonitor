@@ -8,18 +8,18 @@
           </div>
           <div class="brand-text">
             <span class="brand-name">GoldMonitor</span>
-            <span class="brand-tag">v1.0.0</span>
+            <span class="brand-tag">实时金价监控</span>
           </div>
         </div>
         
         <div class="header-actions">
-          <div class="online-status-badge">
+          <div class="status-indicator">
             <span class="pulse-dot"></span>
-            <span class="mono-text">{{ onlineCount }} WATCHING</span>
+            <span>当前在线: {{ onlineCount }}</span>
           </div>
-          <button class="tech-btn" @click="fetchAllPrices" :disabled="isRefreshing">
+          <button class="refresh-btn" @click="fetchAllPrices" :disabled="isRefreshing">
             <reload-outlined :spin="isRefreshing" />
-            <span>SYNC_DATA</span>
+            <span>刷新数据</span>
           </button>
         </div>
       </div>
@@ -29,12 +29,12 @@
       <!-- Section: Real-time Data -->
       <section class="data-section">
         <div class="section-header">
-          <h2 class="section-title">> BROWSE_REALTIME_QUOTES</h2>
-          <div class="section-desc">Real-time gold price data from major banks. updated every 30s.</div>
+          <h2 class="section-title">实时行情</h2>
+          <p class="section-desc">同步各大银行最新金价数据，每 30 秒自动更新</p>
         </div>
         
-        <div class="price-grid-wrapper">
-          <div v-for="bank in banks" :key="bank.code" class="grid-item">
+        <div class="price-grid">
+          <div v-for="bank in banks" :key="bank.code">
             <PriceCard 
               :data="prices[bank.code]" 
               :loading="loading[bank.code]" 
@@ -48,12 +48,12 @@
       <!-- Section: Analysis -->
       <section class="analysis-section">
         <div class="section-header">
-          <h2 class="section-title">> MARKET_TREND_ANALYSIS</h2>
+          <h2 class="section-title">趋势分析</h2>
         </div>
         
-        <div class="analysis-controls">
-          <div class="control-group">
-            <span class="control-label">SELECT_PROVIDER:</span>
+        <div class="analysis-card minimal-card">
+          <div class="analysis-controls">
+            <div class="control-label">查看历史数据:</div>
             <div class="bank-selector">
               <button 
                 v-for="bank in banks" 
@@ -66,21 +66,21 @@
               </button>
             </div>
           </div>
-        </div>
 
-        <TrendChart :data="chartData" :loading="chartLoading" />
+          <TrendChart :data="chartData" :loading="chartLoading" />
+        </div>
       </section>
     </main>
 
     <footer class="main-footer">
       <div class="footer-inner">
-        <div class="footer-left">
-          <span class="mono-text">STATUS: OK</span>
-          <span class="separator">|</span>
-          <span class="mono-text">API_ENDPOINT: jin.20021002.xyz</span>
+        <div class="footer-info">
+          <span>系统状态: 运行正常</span>
+          <span class="dot-separator"></span>
+          <span>数据来源: jin.20021002.xyz</span>
         </div>
-        <div class="footer-right">
-          <span class="mono-text">© 2026 GOLD_MONITOR_SYSTEM</span>
+        <div class="footer-copyright">
+          © 2026 GoldMonitor System. All rights reserved.
         </div>
       </div>
     </footer>
@@ -185,19 +185,21 @@ onUnmounted(() => {
 }
 
 .main-header {
-  height: 80px;
   background: #ffffff;
-  border-bottom: 1px solid var(--border-color);
+  height: 72px;
+  display: flex;
+  align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .header-inner {
-  max-width: 1400px;
+  max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
-  height: 100%;
-  padding: 0 40px;
+  padding: 0 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -206,73 +208,77 @@ onUnmounted(() => {
 .brand {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .brand-logo {
-  font-size: 32px;
+  font-size: 28px;
   color: var(--primary-color);
+  background: #e6f7ff;
+  width: 44px;
+  height: 44px;
   display: flex;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
 }
 
 .brand-name {
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: -1px;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--text-main);
+  display: block;
 }
 
 .brand-tag {
-  font-family: var(--mono-font);
-  font-size: 10px;
-  color: var(--primary-color);
-  background: #fff5f0;
-  padding: 0 6px;
-  border-radius: 4px;
-  border: 1px solid #ffe8cc;
-  width: fit-content;
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 32px;
 }
 
-.online-status-badge {
+.status-indicator {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
-  background: #f8f9fa;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 
 .pulse-dot {
   width: 8px;
   height: 8px;
-  background: var(--accent-green);
+  background: var(--down-color);
   border-radius: 50%;
-  animation: pulse 2s infinite;
+  position: relative;
 }
 
-.tech-btn {
-  background: var(--text-main);
-  color: #ffffff;
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: var(--down-color);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.5); opacity: 0.5; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.refresh-btn {
+  background: var(--primary-color);
+  color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 6px;
-  font-family: var(--mono-font);
-  font-size: 12px;
-  font-weight: 700;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -280,24 +286,22 @@ onUnmounted(() => {
   transition: all 0.2s;
 }
 
-.tech-btn:hover:not(:disabled) {
-  background: var(--primary-color);
+.refresh-btn:hover:not(:disabled) {
+  opacity: 0.9;
   transform: translateY(-1px);
 }
 
-.tech-btn:disabled {
-  opacity: 0.7;
+.refresh-btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
 .main-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 40px;
+  max-width: 1280px;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 60px;
+  margin: 0 auto;
+  padding: 48px 32px;
+  flex: 1;
 }
 
 .section-header {
@@ -305,59 +309,64 @@ onUnmounted(() => {
 }
 
 .section-title {
-  font-family: var(--mono-font);
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 700;
   color: var(--text-main);
-  margin: 0;
+  margin-bottom: 8px;
 }
 
 .section-desc {
-  font-size: 14px;
   color: var(--text-secondary);
-  margin-top: 8px;
+  font-size: 14px;
 }
 
-.price-grid-wrapper {
+.price-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 24px;
+  margin-bottom: 64px;
+}
+
+.selected-card {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.analysis-section {
+  margin-top: 64px;
+}
+
+.analysis-card {
+  padding: 0 !important;
+  overflow: hidden;
 }
 
 .analysis-controls {
-  margin-bottom: 24px;
-  background: #f8f9fa;
-  padding: 20px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-}
-
-.control-group {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
+  background: #fafafa;
 }
 
 .control-label {
-  font-family: var(--mono-font);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
 }
 
 .bank-selector {
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
 .selector-btn {
-  background: #ffffff;
+  background: white;
   border: 1px solid var(--border-color);
-  padding: 6px 12px;
-  border-radius: 4px;
+  padding: 6px 14px;
+  border-radius: 6px;
   font-size: 13px;
-  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -370,54 +379,108 @@ onUnmounted(() => {
 .selector-btn.active {
   background: var(--primary-color);
   border-color: var(--primary-color);
-  color: #ffffff;
+  color: white;
 }
 
 .main-footer {
-  margin-top: auto;
   background: #ffffff;
+  padding: 48px 0;
   border-top: 1px solid var(--border-color);
-  padding: 20px 0;
 }
 
 .footer-inner {
-  max-width: 1400px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.footer-left, .footer-right {
+.footer-info {
   display: flex;
   align-items: center;
   gap: 16px;
-  font-size: 11px;
   color: var(--text-secondary);
+  font-size: 14px;
 }
 
-.separator {
-  color: var(--border-color);
+.dot-separator {
+  width: 4px;
+  height: 4px;
+  background: #d9d9d9;
+  border-radius: 50%;
 }
 
-.mono-text {
-  font-family: var(--mono-font);
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 209, 178, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(0, 209, 178, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 209, 178, 0); }
+.footer-copyright {
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
 @media (max-width: 768px) {
-  .header-inner { padding: 0 20px; }
-  .main-content { padding: 20px; }
-  .brand-name { font-size: 18px; }
-  .header-actions { gap: 12px; }
-  .online-status-badge { display: none; }
-  .analysis-controls { padding: 12px; }
-  .control-group { flex-direction: column; align-items: flex-start; }
+  .header-inner {
+    padding: 0 16px;
+  }
+  .header-actions {
+    gap: 12px;
+  }
+  .status-indicator {
+    display: none; /* Hide on small mobile to save space */
+  }
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  .brand-name {
+    font-size: 16px;
+  }
+  
+  .main-content {
+    padding: 24px 16px;
+  }
+  
+  .section-title {
+    font-size: 20px;
+  }
+  
+  .price-grid {
+    grid-template-columns: 1fr; /* Single column on mobile */
+    gap: 16px;
+  }
+  
+  .analysis-controls {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .bank-selector {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .selector-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+    padding: 0 16px;
+  }
+  
+  .footer-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .dot-separator {
+    display: none;
+  }
 }
 </style>

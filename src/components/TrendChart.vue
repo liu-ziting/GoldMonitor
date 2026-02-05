@@ -1,16 +1,18 @@
 <template>
-    <div class="window-frame chart-window" :class="{ 'is-loading': loading }">
-        <div class="window-header">
-            <div class="window-dot dot-red"></div>
-            <div class="window-dot dot-yellow"></div>
-            <div class="window-dot dot-green"></div>
-            <div class="window-title">price_trend_analysis.sh</div>
-            <div class="header-status">
-                <span class="status-pulse"></span>
-                LIVE
+    <div class="minimal-card chart-card" :class="{ 'is-loading': loading }">
+        <div class="chart-header">
+            <div class="header-left">
+                <h3 class="chart-title">价格走势</h3>
+                <span class="chart-subtitle">实时更新中</span>
+            </div>
+            <div class="header-right">
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    LIVE
+                </div>
             </div>
         </div>
-        <div class="chart-content">
+        <div class="chart-body">
             <div ref="chartRef" class="trend-chart"></div>
             <div v-if="loading" class="chart-loading">
                 <div class="loading-spinner"></div>
@@ -53,36 +55,32 @@ const updateChart = () => {
         useUTC: true,
         tooltip: {
             trigger: 'axis',
-            backgroundColor: '#ffffff',
-            borderColor: '#e0e0e0',
+            backgroundColor: 'rgba(255, 255, 255, 0.96)',
+            borderColor: '#f0f0f0',
             borderWidth: 1,
             padding: [12, 16],
-            shadowBlur: 0,
-            shadowOffsetX: 4,
-            shadowOffsetY: 4,
+            shadowBlur: 10,
             shadowColor: 'rgba(0,0,0,0.05)',
             textStyle: {
-                fontFamily: "'Fira Code', monospace",
-                fontSize: 12,
-                color: '#1a1a1a'
+                color: '#262626',
+                fontSize: 13
             },
             formatter: (params: any) => {
                 const item = params[0]
                 const time = dayjs(item.value[0]).utc().format('HH:mm:ss')
                 return `
-          <div style="color: #a0aec0; margin-bottom: 4px;">timestamp: "${time}"</div>
-          <div style="display: flex; align-items: baseline; gap: 8px;">
-            <span style="color: #ff5c00; font-weight: 700;">price:</span>
-            <span style="font-size: 16px; font-weight: 800; color: #1a1a1a;">${item.value[1].toFixed(2)}</span>
-            <span style="color: #a0aec0; font-size: 11px;">CNY/g</span>
-          </div>
-        `
+                    <div style="color: #8c8c8c; font-size: 12px; margin-bottom: 4px;">${time}</div>
+                    <div style="display: flex; align-items: baseline; gap: 4px;">
+                        <span style="font-weight: 600; font-size: 16px;">${item.value[1].toFixed(2)}</span>
+                        <span style="color: #8c8c8c; font-size: 12px;">CNY/g</span>
+                    </div>
+                `
             }
         },
         grid: {
-            left: '40',
-            right: '40',
-            bottom: '40',
+            left: '20',
+            right: '20',
+            bottom: '20',
             top: '40',
             containLabel: true
         },
@@ -90,18 +88,14 @@ const updateChart = () => {
             type: 'time',
             min: dayjs().utc().startOf('day').valueOf(),
             max: Math.max(dayjs().utc().valueOf(), props.data.length > 0 ? props.data[props.data.length - 1].t * 1000 : 0),
-            axisLine: { lineStyle: { color: '#e0e0e0' } },
+            axisLine: { show: false },
             axisTick: { show: false },
             axisLabel: {
-                color: '#a0aec0',
-                fontFamily: "'Fira Code', monospace",
-                fontSize: 11,
+                color: '#8c8c8c',
+                fontSize: 12,
                 formatter: (value: number) => dayjs(value).utc().format('HH:mm')
             },
-            splitLine: {
-                show: true,
-                lineStyle: { color: '#f5f5f5', type: 'dashed' }
-            }
+            splitLine: { show: false }
         },
         yAxis: {
             type: 'value',
@@ -109,11 +103,15 @@ const updateChart = () => {
             axisLine: { show: false },
             axisTick: { show: false },
             axisLabel: {
-                color: '#a0aec0',
-                fontFamily: "'Fira Code', monospace",
-                fontSize: 11
+                color: '#8c8c8c',
+                fontSize: 12
             },
-            splitLine: { lineStyle: { color: '#f5f5f5' } }
+            splitLine: {
+                lineStyle: {
+                    color: '#f0f0f0',
+                    type: 'solid'
+                }
+            }
         },
         series: [
             {
@@ -123,14 +121,48 @@ const updateChart = () => {
                 data: props.data.map(item => [item.t * 1000, item.p]),
                 smooth: true,
                 lineStyle: {
-                    width: 3,
-                    color: '#ff5c00'
+                    width: 4,
+                    color: '#1890ff'
                 },
                 areaStyle: {
                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                        { offset: 0, color: 'rgba(255, 92, 0, 0.15)' },
-                        { offset: 1, color: 'rgba(255, 92, 0, 0)' }
+                        { offset: 0, color: 'rgba(24, 144, 255, 0.12)' },
+                        { offset: 1, color: 'rgba(24, 144, 255, 0)' }
                     ])
+                },
+                markPoint: {
+                    symbol: 'circle',
+                    symbolSize: 6,
+                    data: [
+                        {
+                            type: 'max',
+                            name: '最高',
+                            itemStyle: { color: '#f5222d' },
+                            label: {
+                                position: 'top',
+                                offset: [0, -5]
+                            }
+                        },
+                        {
+                            type: 'min',
+                            name: '最低',
+                            itemStyle: { color: '#52c41a' },
+                            label: {
+                                position: 'bottom',
+                                offset: [0, 5]
+                            }
+                        }
+                    ],
+                    label: {
+                        show: true,
+                        fontSize: 12,
+                        fontWeight: '600',
+                        color: 'inherit',
+                        backgroundColor: 'rgba(255,255,255,0.8)',
+                        padding: [4, 6],
+                        borderRadius: 4,
+                        formatter: (params: any) => `${params.name}: ${params.value.toFixed(2)}`
+                    }
                 }
             }
         ]
@@ -163,57 +195,84 @@ const handleResize = () => {
 </script>
 
 <style scoped>
-.chart-window {
-    width: 100%;
-    background: #ffffff;
+.chart-card {
+    padding: 32px !important;
 }
 
-.header-status {
-    margin-left: auto;
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+}
+
+.chart-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.chart-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    display: block;
+}
+
+.status-badge {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-family: var(--mono-font);
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--accent-green);
-    background: #e6fffa;
-    padding: 2px 8px;
-    border-radius: 4px;
-    border: 1px solid var(--accent-green);
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--down-color);
+    background: #f6ffed;
+    padding: 6px 12px;
+    border-radius: 20px;
 }
 
-.status-pulse {
-    width: 6px;
-    height: 6px;
-    background: var(--accent-green);
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--down-color);
     border-radius: 50%;
-    animation: pulse 1.5s infinite;
+    animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
     0% {
-        transform: scale(1);
-        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.4);
     }
-    50% {
-        transform: scale(1.5);
-        opacity: 0.5;
+    70% {
+        box-shadow: 0 0 0 10px rgba(82, 196, 26, 0);
     }
     100% {
-        transform: scale(1);
-        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(82, 196, 26, 0);
     }
 }
 
-.chart-content {
+.chart-body {
     position: relative;
-    padding: 20px;
 }
 
 .trend-chart {
     width: 100%;
-    height: 400px;
+    height: 450px;
+}
+
+@media (max-width: 768px) {
+    .chart-card {
+        padding: 20px !important;
+    }
+    .trend-chart {
+        height: 300px;
+    }
+    .chart-header {
+        margin-bottom: 20px;
+        flex-direction: column;
+        gap: 16px;
+    }
 }
 
 .chart-loading {
@@ -222,15 +281,14 @@ const handleResize = () => {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.6);
     z-index: 10;
 }
 
 .loading-spinner {
     width: 32px;
     height: 32px;
-    border: 3px solid var(--border-color);
+    border: 3px solid #f0f0f0;
     border-top-color: var(--primary-color);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
@@ -240,10 +298,6 @@ const handleResize = () => {
     to {
         transform: rotate(360deg);
     }
-}
-
-.is-loading .trend-chart {
-    filter: blur(2px);
 }
 </style>
 
