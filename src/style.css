@@ -1,0 +1,56 @@
+:root {
+  --primary-color: #faad14;
+  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --text-main: #2d3436;
+  --text-secondary: #636e72;
+  --up-color: #ff4d4f;
+  --down-color: #52c41a;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  min-height: 100vh;
+  color: var(--text-main);
+}
+
+#app {
+  width: 100%;
+}
+
+/* Ant Design Override */
+.ant-layout {
+  background: transparent !important;
+}
+
+.ant-card {
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07) !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.ant-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.12) !important;
+}
+
+.ant-layout-header {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.ant-btn-primary {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 4px 14px 0 rgba(250, 173, 20, 0.39) !important;
+}
