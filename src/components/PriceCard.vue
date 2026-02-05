@@ -6,14 +6,14 @@
         </div>
 
         <div class="price-section">
-            <div class="price-value-container">
+            <div class="price-value-container mono-text">
                 <span class="price-value">{{ data?.price.toFixed(2) || '0.00' }}</span>
                 <span class="currency">{{ data?.currency }}</span>
             </div>
-            <div class="change-info" :class="isUp ? 'text-up' : 'text-down'">{{ isUp ? '+' : '' }}{{ data?.change.toFixed(2) || '0.00' }}</div>
+            <div class="change-info mono-text" :class="isUp ? 'text-up' : 'text-down'">{{ isUp ? '+' : '' }}{{ data?.change.toFixed(2) || '0.00' }}</div>
         </div>
 
-        <div class="card-footer">
+        <div class="card-footer mono-text">
             <span class="update-label">最后更新</span>
             <span class="update-time">{{ data?.update_time || '-' }}</span>
         </div>
@@ -64,13 +64,13 @@ const isUp = computed(() => (props.data?.change ?? 0) >= 0)
 }
 
 .tag-up {
-    background: #f6ffed;
-    color: var(--down-color);
+    background: #e6f7ff;
+    color: var(--accent-blue);
 }
 
 .tag-down {
     background: #fff1f0;
-    color: var(--up-color);
+    color: var(--primary-color);
 }
 
 .price-section {
@@ -124,10 +124,11 @@ const isUp = computed(() => (props.data?.change ?? 0) >= 0)
 }
 
 .text-up {
-    color: var(--down-color);
+    color: var(--accent-blue);
 }
+
 .text-down {
-    color: var(--up-color);
+    color: var(--primary-color);
 }
 
 .loading-overlay {
@@ -156,4 +157,3 @@ const isUp = computed(() => (props.data?.change ?? 0) >= 0)
     }
 }
 </style>
-

@@ -13,11 +13,10 @@
                 </div>
 
                 <div class="header-actions">
-                    <div class="status-indicator">
-                        <span class="pulse-dot"></span>
-                        <span>当前在线: {{ onlineCount }}</span>
+                    <div class="status-pill">
+                        <span class="online-count">在线: {{ onlineCount }}</span>
                     </div>
-                    <button class="refresh-btn" @click="fetchAllPrices" :disabled="isRefreshing">
+                    <button class="terminal-btn" @click="fetchAllPrices" :disabled="isRefreshing">
                         <reload-outlined :spin="isRefreshing" />
                         <span>刷新数据</span>
                     </button>
@@ -29,8 +28,8 @@
             <!-- Section: Real-time Data -->
             <section class="data-section">
                 <div class="section-header">
-                    <h2 class="section-title">实时行情</h2>
-                    <p class="section-desc">同步各大银行最新金价数据，每 30 秒自动更新</p>
+                    <h2 class="section-title mono-text">// 实时行情</h2>
+                    <p class="section-desc">同步最新金价数据，每 30 秒自动更新</p>
                 </div>
 
                 <div class="price-grid">
@@ -48,14 +47,20 @@
             <!-- Section: Trend -->
             <section class="analysis-section">
                 <div class="section-header">
-                    <h2 class="section-title">趋势分析</h2>
+                    <h2 class="section-title mono-text">> 趋势分析</h2>
                 </div>
 
                 <div class="analysis-card minimal-card">
                     <div class="analysis-controls">
-                        <div class="control-label">查看历史数据:</div>
+                        <div class="control-label mono-text">查看历史数据:</div>
                         <div class="bank-selector">
-                            <button v-for="bank in banks" :key="bank.code" class="selector-btn" :class="{ active: selectedBank === bank.code }" @click="selectBank(bank.code)">
+                            <button
+                                v-for="bank in banks"
+                                :key="bank.code"
+                                class="selector-btn mono-text"
+                                :class="{ active: selectedBank === bank.code }"
+                                @click="selectBank(bank.code)"
+                            >
                                 {{ bank.name }}
                             </button>
                         </div>
@@ -68,20 +73,20 @@
             <!-- Section: AI Insights -->
             <section class="analysis-section">
                 <div class="section-header ai-header">
-                    <h2 class="section-title">AI 洞察</h2>
-                    <button class="ai-trigger-btn" @click="fetchAiInsights" :disabled="isAiAnalyzing || Object.keys(prices).length === 0">
+                    <h2 class="section-title mono-text">> AI 洞察</h2>
+                    <button class="terminal-btn ai-trigger-btn" @click="fetchAiInsights" :disabled="isAiAnalyzing || Object.keys(prices).length === 0">
                         <robot-outlined :spin="isAiAnalyzing" />
-                        <span>{{ isAiAnalyzing ? '正在深度分析行情...' : '点击获取 AI 锐评 & 分析' }}</span>
+                        <span>{{ isAiAnalyzing ? '分析中...' : 'AI 分析' }}</span>
                     </button>
                 </div>
 
                 <div class="ai-insights-grid">
                     <div class="minimal-card ai-card commentary-card">
                         <div class="ai-card-header">
-                            <span class="ai-tag">AI 锐评</span>
+                            <span class="ai-tag mono-text">/** AI 锐评 */</span>
                         </div>
                         <div class="ai-card-body" :class="{ 'is-loading': isAiAnalyzing }">
-                            <p v-if="!isAiAnalyzing">{{ aiCommentary || '等待数据分析...' }}</p>
+                            <p v-if="!isAiAnalyzing" class="mono-text">{{ aiCommentary || '等待分析中...' }}</p>
                             <div v-else class="ai-loading-skeleton">
                                 <div class="skeleton-line"></div>
                                 <div class="skeleton-line short"></div>
@@ -91,10 +96,10 @@
 
                     <div class="minimal-card ai-card analysis-card-ai">
                         <div class="ai-card-header">
-                            <span class="ai-tag analysis">AI 分析</span>
+                            <span class="ai-tag analysis mono-text">/** AI 分析 */</span>
                         </div>
                         <div class="ai-card-body" :class="{ 'is-loading': isAiAnalyzing }">
-                            <p v-if="!isAiAnalyzing">{{ aiAnalysis || '等待行情数据获取后开始分析...' }}</p>
+                            <p v-if="!isAiAnalyzing" class="mono-text">{{ aiAnalysis || '行情数据获取后，AI 分析将在此显示。' }}</p>
                             <div v-else class="ai-loading-skeleton">
                                 <div class="skeleton-line"></div>
                                 <div class="skeleton-line"></div>
@@ -107,13 +112,13 @@
         </main>
 
         <footer class="main-footer">
-            <div class="footer-inner">
+            <div class="footer-inner mono-text">
                 <div class="footer-info">
                     <span>系统状态: 运行正常</span>
                     <span class="dot-separator"></span>
                     <span>数据来源: jin.20021002.xyz</span>
                 </div>
-                <div class="footer-copyright">© 2026 GoldMonitor System. All rights reserved.</div>
+                <div class="footer-copyright">© 2026 GOLD_MONITOR_SYS. v1.0.0</div>
             </div>
         </footer>
     </div>
@@ -269,20 +274,20 @@ onUnmounted(() => {
 
 .main-header {
     background: #ffffff;
-    height: 72px;
+    height: 60px;
     display: flex;
     align-items: center;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .header-inner {
-    max-width: 1280px;
+    max-width: 1400px;
     width: 100%;
     margin: 0 auto;
-    padding: 0 32px;
+    padding: 0 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -291,134 +296,108 @@ onUnmounted(() => {
 .brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
 }
 
 .brand-logo {
-    font-size: 28px;
+    font-size: 24px;
     color: var(--primary-color);
-    background: #e6f7ff;
-    width: 44px;
-    height: 44px;
+    background: #fffafa;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
 }
 
 .brand-name {
-    font-size: 20px;
+    font-family: var(--font-mono);
+    font-size: 18px;
     font-weight: 700;
     color: var(--text-main);
     display: block;
 }
 
 .brand-tag {
-    font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
     color: var(--text-secondary);
+    opacity: 0.8;
 }
 
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 24px;
 }
 
-.status-indicator {
-    display: flex;
+.status-pill {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--accent-green);
+    color: var(--accent-green);
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
-    color: var(--text-secondary);
 }
 
-.pulse-dot {
-    width: 8px;
-    height: 8px;
-    background: var(--down-color);
-    border-radius: 50%;
-    position: relative;
-}
-
-.pulse-dot::after {
+.status-pill::before {
     content: '';
-    position: absolute;
-    inset: -4px;
-    background: var(--down-color);
+    width: 6px;
+    height: 6px;
+    background: var(--accent-green);
     border-radius: 50%;
-    opacity: 0.3;
-    animation: pulse-ring 2s infinite;
+    box-shadow: 0 0 8px var(--accent-green);
 }
 
-@keyframes pulse-ring {
-    0% {
-        transform: scale(0.5);
-        opacity: 0.5;
-    }
-    100% {
-        transform: scale(2);
-        opacity: 0;
-    }
-}
-
-.refresh-btn {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-}
-
-.refresh-btn:hover:not(:disabled) {
-    opacity: 0.9;
-    transform: translateY(-1px);
-}
-
-.refresh-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.online-count {
+    border-left: 1px solid rgba(0, 184, 148, 0.3);
+    padding-left: 8px;
 }
 
 .main-content {
-    max-width: 1280px;
+    max-width: 1400px;
     width: 100%;
     margin: 0 auto;
-    padding: 48px 32px;
+    padding: 60px 40px;
     flex: 1;
 }
 
 .section-header {
-    margin-bottom: 32px;
+    margin-bottom: 40px;
 }
 
 .section-title {
-    font-size: 24px;
+    font-size: 32px;
     font-weight: 700;
     color: var(--text-main);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
 }
 
 .section-desc {
     color: var(--text-secondary);
     font-size: 14px;
+    font-family: var(--font-mono);
 }
 
 .price-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 24px;
-    margin-bottom: 64px;
+    margin-bottom: 80px;
 }
 
 .selected-card {
     border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.selected-card::before {
+    background: var(--primary-color) !important;
 }
 
 /* AI Insights Styles */
@@ -429,35 +408,19 @@ onUnmounted(() => {
 }
 
 .ai-trigger-btn {
-    background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s;
-    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
+    border-radius: 20px !important;
+    padding: 8px 20px !important;
+    background: #000 !important;
+    color: #fff !important;
+    border: none !important;
 }
 
-.ai-trigger-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(24, 144, 255, 0.3);
-    filter: brightness(1.1);
+.ai-trigger-btn::before {
+    display: none;
 }
 
-.ai-trigger-btn:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.ai-trigger-btn:disabled {
-    background: #f5f5f5;
-    color: #bfbfbf;
-    cursor: not-allowed;
-    box-shadow: none;
+.ai-trigger-btn:hover {
+    background: #333 !important;
 }
 
 .ai-insights-grid {
@@ -468,45 +431,27 @@ onUnmounted(() => {
 }
 
 .ai-card {
-    padding: 24px !important;
+    padding: 32px !important;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    transition: all 0.3s ease;
-}
-
-.ai-card-header {
-    display: flex;
-    align-items: center;
+    gap: 20px;
 }
 
 .ai-tag {
-    background: #e6f7ff;
-    color: #1890ff;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.ai-tag.analysis {
-    background: #f6ffed;
-    color: #52c41a;
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 .ai-card-body {
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--text-main);
+    font-size: 14px;
+    line-height: 1.7;
 }
 
 .commentary-card .ai-card-body {
-    font-style: italic;
-    font-size: 16px;
-    color: #262626;
-    font-weight: 500;
+    color: var(--accent-orange);
 }
 
 .ai-loading-skeleton {
@@ -631,26 +576,77 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+    .main-header {
+        height: auto;
+        padding: 12px 0;
+    }
+
     .header-inner {
-        padding: 0 16px;
+        padding: 0 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
     }
-    .header-actions {
-        gap: 12px;
+
+    .brand {
+        gap: 8px;
     }
-    .status-indicator {
-        display: none; /* Hide on small mobile to save space */
-    }
+
     .brand-logo {
-        width: 36px;
-        height: 36px;
-        font-size: 20px;
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+        border-radius: 6px;
     }
+
     .brand-name {
-        font-size: 16px;
+        font-size: 15px;
+    }
+
+    .brand-tag {
+        display: none;
+    }
+
+    .header-actions {
+        gap: 8px;
+        margin-left: auto;
+    }
+
+    .status-pill {
+        padding: 2px 8px;
+        font-size: 11px;
+    }
+
+    .status-pill span:first-child {
+        display: none; /* Hide "就绪" text on mobile */
+    }
+
+    .online-count {
+        padding-left: 4px;
+        border-left: 1px solid rgba(0, 184, 148, 0.2);
+    }
+
+    .terminal-btn {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    .terminal-btn span {
+        font-size: 11px;
+    }
+
+    .status-pill::before {
+        width: 6px;
+        height: 6px;
+    }
+
+    .terminal-btn::before {
+        font-size: 11px;
     }
 
     .main-content {
-        padding: 24px 16px;
+        padding: 20px 12px;
     }
 
     .section-title {

@@ -2,13 +2,12 @@
     <div class="minimal-card chart-card" :class="{ 'is-loading': loading }">
         <div class="chart-header">
             <div class="header-left">
-                <h3 class="chart-title">价格走势</h3>
-                <span class="chart-subtitle">实时更新中</span>
+                <h3 class="chart-title mono-text">// 价格走势</h3>
+                <span class="chart-subtitle mono-text">实时更新中</span>
             </div>
             <div class="header-right">
-                <div class="status-badge">
-                    <span class="status-dot"></span>
-                    LIVE
+                <div class="status-pill">
+                    <span>LIVE</span>
                 </div>
             </div>
         </div>
@@ -56,44 +55,45 @@ const updateChart = () => {
         useUTC: true,
         tooltip: {
             trigger: 'axis',
-            backgroundColor: 'rgba(255, 255, 255, 0.96)',
-            borderColor: '#f0f0f0',
+            backgroundColor: 'rgba(255, 255, 255, 0.98)',
+            borderColor: '#e0e0e0',
             borderWidth: 1,
             padding: [12, 16],
-            shadowBlur: 10,
-            shadowColor: 'rgba(0,0,0,0.05)',
+            shadowBlur: 0,
             textStyle: {
-                color: '#262626',
-                fontSize: 13
+                color: '#2d3436',
+                fontSize: 13,
+                fontFamily: 'JetBrains Mono, monospace'
             },
             formatter: (params: any) => {
                 const item = params[0]
                 const time = dayjs(item.value[0]).utc().format('HH:mm:ss')
                 return `
-                    <div style="color: #8c8c8c; font-size: 12px; margin-bottom: 4px;">${time}</div>
+                    <div style="color: #636e72; font-size: 12px; margin-bottom: 4px;">${time}</div>
                     <div style="display: flex; align-items: baseline; gap: 4px;">
-                        <span style="font-weight: 600; font-size: 16px;">${item.value[1].toFixed(2)}</span>
-                        <span style="color: #8c8c8c; font-size: 12px;">${props.unit || 'CNY/g'}</span>
+                        <span style="font-weight: 600; font-size: 16px; color: #ff7675;">${item.value[1].toFixed(2)}</span>
+                        <span style="color: #636e72; font-size: 12px;">${props.unit || 'CNY/g'}</span>
                     </div>
                 `
             }
         },
         grid: {
-            left: '20',
-            right: '20',
-            bottom: '20',
+            left: '30',
+            right: '30',
+            bottom: '30',
             top: '40',
             containLabel: true
         },
         xAxis: {
             type: 'time',
             min: dayjs().utc().startOf('day').valueOf(),
-            max: Math.max(dayjs().utc().valueOf(), props.data.length > 0 ? props.data[props.data.length - 1].t * 1000 : 0),
-            axisLine: { show: false },
-            axisTick: { show: false },
+            max: Math.max(dayjs().utc().valueOf(), props.data.length > 0 ? (props.data[props.data.length - 1]?.t || 0) * 1000 : 0),
+            axisLine: { show: true, lineStyle: { color: '#e0e0e0' } },
+            axisTick: { show: true },
             axisLabel: {
-                color: '#8c8c8c',
+                color: '#636e72',
                 fontSize: 12,
+                fontFamily: 'JetBrains Mono, monospace',
                 formatter: (value: number) => dayjs(value).utc().format('HH:mm')
             },
             splitLine: { show: false }
@@ -104,13 +104,14 @@ const updateChart = () => {
             axisLine: { show: false },
             axisTick: { show: false },
             axisLabel: {
-                color: '#8c8c8c',
-                fontSize: 12
+                color: '#636e72',
+                fontSize: 12,
+                fontFamily: 'JetBrains Mono, monospace'
             },
             splitLine: {
                 lineStyle: {
                     color: '#f0f0f0',
-                    type: 'solid'
+                    type: 'dashed'
                 }
             }
         },
@@ -122,23 +123,23 @@ const updateChart = () => {
                 data: props.data.map(item => [item.t * 1000, item.p]),
                 smooth: true,
                 lineStyle: {
-                    width: 4,
-                    color: '#1890ff'
+                    width: 2,
+                    color: '#ff7675'
                 },
                 areaStyle: {
                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                        { offset: 0, color: 'rgba(24, 144, 255, 0.12)' },
-                        { offset: 1, color: 'rgba(24, 144, 255, 0)' }
+                        { offset: 0, color: 'rgba(255, 118, 117, 0.2)' },
+                        { offset: 1, color: 'rgba(255, 118, 117, 0.02)' }
                     ])
                 },
                 markPoint: {
                     symbol: 'circle',
-                    symbolSize: 6,
+                    symbolSize: 4,
                     data: [
                         {
                             type: 'max',
                             name: '最高',
-                            itemStyle: { color: '#f5222d' },
+                            itemStyle: { color: '#ff7675' },
                             label: {
                                 position: 'top',
                                 offset: [0, -5]
@@ -147,7 +148,7 @@ const updateChart = () => {
                         {
                             type: 'min',
                             name: '最低',
-                            itemStyle: { color: '#52c41a' },
+                            itemStyle: { color: '#0984e3' },
                             label: {
                                 position: 'bottom',
                                 offset: [0, 5]
@@ -156,13 +157,13 @@ const updateChart = () => {
                     ],
                     label: {
                         show: true,
-                        fontSize: 12,
-                        fontWeight: '600',
+                        fontSize: 11,
+                        fontFamily: 'JetBrains Mono, monospace',
+                        fontWeight: 500,
                         color: 'inherit',
-                        backgroundColor: 'rgba(255,255,255,0.8)',
+                        backgroundColor: 'transparent',
                         padding: [4, 6],
-                        borderRadius: 4,
-                        formatter: (params: any) => `${params.name}: ${params.value.toFixed(2)} ${props.unit || 'CNY/g'}`
+                        formatter: (params: any) => `${params.name}: ${params.value.toFixed(2)}`
                     }
                 }
             }
@@ -208,49 +209,26 @@ const handleResize = () => {
 }
 
 .chart-title {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--text-main);
+    margin: 0;
 }
 
 .chart-subtitle {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-top: 4px;
-    display: block;
-}
-
-.status-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     font-size: 12px;
-    font-weight: 600;
-    color: var(--down-color);
-    background: #f6ffed;
-    padding: 6px 12px;
-    border-radius: 20px;
+    color: var(--text-secondary);
+    opacity: 0.7;
 }
 
-.status-dot {
-    width: 8px;
-    height: 8px;
-    background: var(--down-color);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(82, 196, 26, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(82, 196, 26, 0);
-    }
+.status-pill {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    letter-spacing: 1px;
 }
 
 .chart-body {
