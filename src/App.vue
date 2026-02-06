@@ -335,13 +335,14 @@ onUnmounted(() => {
 
 .status-pill {
     font-family: var(--font-mono);
-    font-size: 12px;
-    padding: 4px 12px;
-    border-radius: 6px;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 8px;
     border: 1px solid var(--accent-green);
     color: var(--accent-green);
     display: inline-flex;
     align-items: center;
+    line-height: 1;
     gap: 8px;
 }
 
@@ -620,8 +621,8 @@ onUnmounted(() => {
     }
 
     .status-pill {
-        padding: 2px 8px;
-        font-size: 11px;
+        padding: 4px 10px;
+        font-size: 12px;
     }
 
     .online-count {
