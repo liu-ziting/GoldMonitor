@@ -14,8 +14,15 @@
         </div>
 
         <div class="card-footer mono-text">
-            <span class="update-label">最后更新</span>
-            <span class="update-time">{{ data?.update_time || '-' }}</span>
+            <span class="prev-close-inline" v-if="data?.prev_close != null">
+                <span class="prev-close-inline-label">昨收</span>
+                <span class="prev-close-inline-value">{{ Number(data.prev_close).toFixed(2) }}</span>
+            </span>
+            <span class="prev-close-inline" v-else></span>
+            <span class="update-wrap">
+                <span class="update-label">最后更新</span>
+                <span class="update-time">{{ data?.update_time || '-' }}</span>
+            </span>
         </div>
 
         <div v-if="loading" class="loading-overlay">
@@ -42,6 +49,16 @@ const isUp = computed(() => (props.data?.change ?? 0) >= 0)
     display: flex;
     flex-direction: column;
     gap: 20px;
+    cursor: pointer;
+}
+
+.price-card:hover {
+    border-color: var(--primary-color);
+    background: #fffcfc;
+}
+
+.price-card:active {
+    transform: translateY(1px);
 }
 
 .card-header {
@@ -113,15 +130,42 @@ const isUp = computed(() => (props.data?.change ?? 0) >= 0)
     border-top: 1px solid var(--border-color);
 }
 
+.update-wrap {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+}
+
 .update-label {
     font-size: 12px;
     color: var(--text-secondary);
+    opacity: 0.75;
 }
 
 .update-time {
     font-size: 12px;
     color: var(--text-main);
     font-weight: 500;
+}
+
+.prev-close-inline {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    opacity: 0.75;
+}
+
+.prev-close-inline-label {
+    letter-spacing: 0.2px;
+}
+
+.prev-close-inline-value {
+    font-weight: 600;
+    color: var(--text-secondary);
 }
 
 .text-up {

@@ -4,6 +4,7 @@ export interface GoldPriceData {
     symbol: string
     currency: string
     price: number
+    prev_close?: number
     change: number
     change_pct: number
     update_time: string
