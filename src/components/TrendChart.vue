@@ -11,6 +11,46 @@
                 </div>
             </div>
         </div>
+        <div class="stats-row" v-if="stats">
+            <div class="stat-item">
+                <div class="stat-label mono-text">今日最高</div>
+                <div class="stat-value mono-text">
+                    <span>{{ stats.high }}</span>
+                    <span class="stat-sub">{{ stats.unit }}</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label mono-text">今日最低</div>
+                <div class="stat-value mono-text">
+                    <span>{{ stats.low }}</span>
+                    <span class="stat-sub">{{ stats.unit }}</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label mono-text">振幅</div>
+                <div class="stat-value mono-text">
+                    <span>{{ stats.amplitude }}</span>
+                    <span class="stat-sub">{{ stats.unit }}</span>
+                </div>
+                <div class="stat-meta mono-text">{{ stats.amplitudePct }}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label mono-text">偏离均值</div>
+                <div class="stat-value mono-text" :class="stats.deviationClass">
+                    <span>{{ stats.deviation }}</span>
+                    <span class="stat-sub">{{ stats.unit }}</span>
+                </div>
+                <div class="stat-meta mono-text">{{ stats.deviationPct }}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label mono-text">近 {{ stats.windowMinutes }} 分钟</div>
+                <div class="stat-value mono-text" :class="stats.windowClass">
+                    <span>{{ stats.windowChange }}</span>
+                    <span class="stat-sub">{{ stats.unit }}</span>
+                </div>
+                <div class="stat-meta mono-text">{{ stats.windowPct }}</div>
+            </div>
+        </div>
         <div class="chart-body">
             <div ref="chartRef" class="trend-chart"></div>
             <div v-if="loading" class="chart-loading">
@@ -21,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import * as echarts from 'echarts'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -36,10 +76,86 @@ const props = defineProps<{
     title?: string
     loading?: boolean
     unit?: string
+    changeWindowMinutes?: number
 }>()
 
 const chartRef = ref<HTMLElement | null>(null)
 let chart: echarts.ECharts | null = null
+
+const stats = computed(() => {
+    const points = props.data || []
+    if (points.length === 0) return null
+
+    let min = Number.POSITIVE_INFINITY
+    let max = Number.NEGATIVE_INFINITY
+    let sum = 0
+
+    for (const p of points) {
+        const v = p.p
+        if (!Number.isFinite(v)) continue
+        if (v < min) min = v
+        if (v > max) max = v
+        sum += v
+    }
+
+    const count = points.length
+    const mean = count > 0 ? sum / count : NaN
+    const lastPoint = points[points.length - 1]
+    const latest = lastPoint?.p ?? NaN
+    const unit = props.unit || 'CNY/g'
+
+    const fmt = (n: number, digits = 2) => (Number.isFinite(n) ? n.toFixed(digits) : '-')
+    const fmtSigned = (n: number, digits = 2) => {
+        if (!Number.isFinite(n)) return '-'
+        const s = n > 0 ? '+' : ''
+        return `${s}${n.toFixed(digits)}`
+    }
+    const fmtPctSigned = (n: number, digits = 2) => {
+        if (!Number.isFinite(n)) return '-'
+        const s = n > 0 ? '+' : ''
+        return `${s}${n.toFixed(digits)}%`
+    }
+
+    const amplitude = max - min
+    const amplitudePct = Number.isFinite(mean) && mean !== 0 ? (amplitude / mean) * 100 : NaN
+    const deviation = latest - mean
+    const deviationPct = Number.isFinite(mean) && mean !== 0 ? (deviation / mean) * 100 : NaN
+
+    const windowMinutes = props.changeWindowMinutes ?? 30
+    const lastT = lastPoint?.t ?? NaN
+    const targetT = Number.isFinite(lastT) ? lastT - windowMinutes * 60 : NaN
+    let base: number | null = null
+    if (Number.isFinite(targetT)) {
+        for (let i = points.length - 1; i >= 0; i--) {
+            const t = points[i]?.t ?? NaN
+            if (Number.isFinite(t) && t <= targetT) {
+                base = points[i]?.p ?? null
+                break
+            }
+        }
+    }
+
+    const windowChange = base !== null ? latest - base : NaN
+    const windowPct = base !== null && base !== 0 ? (windowChange / base) * 100 : NaN
+
+    const deviationClass = deviation > 0 ? 'value-up' : deviation < 0 ? 'value-down' : ''
+    const windowClass = windowChange > 0 ? 'value-up' : windowChange < 0 ? 'value-down' : ''
+
+    return {
+        unit,
+        high: fmt(max),
+        low: fmt(min),
+        amplitude: fmt(amplitude),
+        amplitudePct: Number.isFinite(amplitudePct) ? fmtPctSigned(amplitudePct) : '-',
+        deviation: fmtSigned(deviation),
+        deviationPct: Number.isFinite(deviationPct) ? fmtPctSigned(deviationPct) : '-',
+        deviationClass,
+        windowMinutes,
+        windowChange: base !== null ? fmtSigned(windowChange) : '-',
+        windowPct: base !== null && Number.isFinite(windowPct) ? fmtPctSigned(windowPct) : '-',
+        windowClass
+    }
+})
 
 const initChart = () => {
     if (!chartRef.value) return
@@ -203,6 +319,62 @@ const handleResize = () => {
     padding: 32px !important;
 }
 
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.stat-item {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px 12px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.85;
+    letter-spacing: 0.2px;
+}
+
+.stat-value {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.1;
+}
+
+.stat-sub {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.stat-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.9;
+}
+
+.value-up {
+    color: var(--accent-blue);
+}
+
+.value-down {
+    color: var(--primary-color);
+}
+
 .chart-header {
     display: flex;
     justify-content: space-between;
@@ -274,6 +446,18 @@ const handleResize = () => {
 @media (max-width: 768px) {
     .chart-card {
         padding: 32px 8px 16px !important;
+    }
+    .stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 12px;
+        padding: 0 8px;
+    }
+    .stat-item {
+        padding: 10px 10px;
+    }
+    .stat-value {
+        font-size: 15px;
     }
     .trend-chart {
         height: 260px;
