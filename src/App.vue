@@ -639,13 +639,36 @@ onUnmounted(() => {
     color: var(--accent-orange);
 }
 
-.ai-md :deep(h1),
-.ai-md :deep(h2),
-.ai-md :deep(h3),
-.ai-md :deep(h4) {
-    margin: 10px 0 8px;
+.ai-md :deep(h1) {
+    margin: 10px 0 6px;
     font-weight: 700;
     letter-spacing: -0.2px;
+    font-size: 18px;
+    line-height: 1.3;
+}
+
+.ai-md :deep(h2) {
+    margin: 10px 0 6px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+.ai-md :deep(h3) {
+    margin: 8px 0 6px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.ai-md :deep(h4) {
+    margin: 8px 0 6px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 .ai-md :deep(p) {
