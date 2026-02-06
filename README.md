@@ -102,6 +102,7 @@ npm run preview
         "name": "浙商银行",
         "currency": "CNY/g",
         "price": 0,
+        "prev_close": 0,
         "change": 0,
         "change_pct": 0,
         "update_time": "HH:mm:ss"
@@ -143,11 +144,16 @@ AI 服务由前端直接请求（见 [aiService](file:///d:/lztcode/GoldMonitor/
 }
 ```
 
-当前页面会期望 AI 返回内容是一个 JSON 字符串，形如：
+前端会发起两次请求：
 
-```json
-{ "commentary": "锐评内容", "analysis": "分析内容" }
-```
+- 第一次：AI 锐评（1~2 句话，偏幽默/犀利）
+- 第二次：AI 分析（结构化要点 + 风险提示）
+
+AI 分析请求会携带更“详细的数据”，至少包括：
+
+- 当前价、昨收（`prev_close`）、较昨收涨跌与涨跌幅
+- 接口返回的 `change` / `change_pct` / `update_time`
+- 基于日内图表点位计算的统计：最高/最低/振幅/均值/偏离均值/近 30 分钟变化
 
 如果你要替换为自己的 AI 网关/模型服务，直接改：
 
@@ -205,4 +211,3 @@ npx wrangler deploy
 **如何移除 Clarity 统计**
 
 - 入口页面包含 Microsoft Clarity 注入脚本，位置在 [index.html](file:///d:/lztcode/GoldMonitor/index.html)。
-

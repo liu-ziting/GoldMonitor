@@ -74,36 +74,31 @@
             <section class="analysis-section">
                 <div class="section-header ai-header">
                     <h2 class="section-title mono-text">> AI 洞察</h2>
-                    <button class="terminal-btn ai-trigger-btn" @click="fetchAiInsights" :disabled="isAiAnalyzing || Object.keys(prices).length === 0">
-                        <robot-outlined :spin="isAiAnalyzing" />
-                        <span>{{ isAiAnalyzing ? '分析中...' : 'AI 分析' }}</span>
+                    <button class="terminal-btn ai-trigger-btn" @click="fetchAiInsights" :disabled="isAiBusy || Object.keys(prices).length === 0">
+                        <robot-outlined :spin="isAiBusy" />
+                        <span>{{ isAiBusy ? '生成中...' : 'AI 洞察' }}</span>
                     </button>
                 </div>
 
                 <div class="ai-insights-grid">
-                    <div class="minimal-card ai-card commentary-card">
-                        <div class="ai-card-header">
-                            <span class="ai-tag mono-text">/** AI 锐评 */</span>
-                        </div>
-                        <div class="ai-card-body" :class="{ 'is-loading': isAiAnalyzing }">
-                            <p v-if="!isAiAnalyzing" class="mono-text">{{ aiCommentary || '等待分析中...' }}</p>
-                            <div v-else class="ai-loading-skeleton">
-                                <div class="skeleton-line"></div>
-                                <div class="skeleton-line short"></div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="minimal-card ai-card analysis-card-ai">
                         <div class="ai-card-header">
                             <span class="ai-tag analysis mono-text">/** AI 分析 */</span>
                         </div>
                         <div class="ai-card-body" :class="{ 'is-loading': isAiAnalyzing }">
-                            <p v-if="!isAiAnalyzing" class="mono-text">{{ aiAnalysis || '行情数据获取后，AI 分析将在此显示。' }}</p>
+                            <div v-if="!isAiAnalyzing" class="ai-md mono-text" v-html="aiAnalysisHtml || '行情数据获取后，AI 分析将在此显示。'"></div>
                             <div v-else class="ai-loading-skeleton">
                                 <div class="skeleton-line"></div>
                                 <div class="skeleton-line"></div>
                                 <div class="skeleton-line short"></div>
+                            </div>
+
+                            <div class="ai-commentary-block" :class="{ 'is-loading': isAiCommenting }">
+                                <div v-if="!isAiCommenting" class="ai-md mono-text ai-commentary-inline" v-html="aiCommentaryHtml || '等待锐评中...'"></div>
+                                <div v-else class="ai-loading-skeleton">
+                                    <div class="skeleton-line"></div>
+                                    <div class="skeleton-line short"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -152,6 +147,158 @@ const chartLoading = ref(false)
 const aiCommentary = ref('')
 const aiAnalysis = ref('')
 const isAiAnalyzing = ref(false)
+const isAiCommenting = ref(false)
+
+const isAiBusy = computed(() => isAiAnalyzing.value || isAiCommenting.value)
+
+const escapeHtml = (input: string) => {
+    return String(input || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+}
+
+const markdownToHtml = (md: string) => {
+    const normalized = String(md || '').replace(/\r\n/g, '\n')
+    const blocks: string[] = []
+
+    let inCode = false
+    let codeLang = ''
+    let codeLines: string[] = []
+    let listMode: 'ul' | 'ol' | null = null
+    let listItems: string[] = []
+    let paraLines: string[] = []
+
+    const flushParagraph = () => {
+        if (!paraLines.length) return
+        const text = escapeHtml(paraLines.join(' ').trim())
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/`([^`]+?)`/g, '<code>$1</code>')
+        blocks.push(`<p>${text}</p>`)
+        paraLines = []
+    }
+
+    const flushList = () => {
+        if (!listMode || !listItems.length) {
+            listMode = null
+            listItems = []
+            return
+        }
+        const tag = listMode === 'ol' ? 'ol' : 'ul'
+        const itemsHtml = listItems
+            .map(item =>
+                escapeHtml(item)
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/`([^`]+?)`/g, '<code>$1</code>')
+            )
+            .map(item => `<li>${item}</li>`)
+            .join('')
+        blocks.push(`<${tag}>${itemsHtml}</${tag}>`)
+        listMode = null
+        listItems = []
+    }
+
+    const flushCode = () => {
+        if (!codeLines.length) {
+            inCode = false
+            codeLang = ''
+            return
+        }
+        const code = escapeHtml(codeLines.join('\n'))
+        const langClass = codeLang ? ` class="language-${escapeHtml(codeLang)}"` : ''
+        blocks.push(`<pre><code${langClass}>${code}</code></pre>`)
+        inCode = false
+        codeLang = ''
+        codeLines = []
+    }
+
+    for (const rawLine of normalized.split('\n')) {
+        const line = rawLine.replace(/\s+$/g, '')
+
+        const fenceMatch = line.match(/^```(\w+)?\s*$/)
+        if (fenceMatch) {
+            if (inCode) {
+                flushCode()
+            } else {
+                flushParagraph()
+                flushList()
+                inCode = true
+                codeLang = fenceMatch[1] || ''
+                codeLines = []
+            }
+            continue
+        }
+
+        if (inCode) {
+            codeLines.push(rawLine)
+            continue
+        }
+
+        if (!line.trim()) {
+            flushParagraph()
+            flushList()
+            continue
+        }
+
+        const headingMatch = line.match(/^(#{1,4})\s+(.+)\s*$/)
+        if (headingMatch) {
+            flushParagraph()
+            flushList()
+            const level = Math.min(4, (headingMatch[1] || '').length)
+            const content = escapeHtml(headingMatch[2] || '')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`([^`]+?)`/g, '<code>$1</code>')
+            blocks.push(`<h${level}>${content}</h${level}>`)
+            continue
+        }
+
+        const quoteMatch = line.match(/^>\s?(.+)\s*$/)
+        if (quoteMatch) {
+            flushParagraph()
+            flushList()
+            const content = escapeHtml(quoteMatch[1] || '')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`([^`]+?)`/g, '<code>$1</code>')
+            blocks.push(`<blockquote>${content}</blockquote>`)
+            continue
+        }
+
+        const ulMatch = line.match(/^\s*[-*]\s+(.+)\s*$/)
+        if (ulMatch) {
+            flushParagraph()
+            if (listMode && listMode !== 'ul') flushList()
+            listMode = 'ul'
+            listItems.push(ulMatch[1] || '')
+            continue
+        }
+
+        const olMatch = line.match(/^\s*\d+\.\s+(.+)\s*$/)
+        if (olMatch) {
+            flushParagraph()
+            if (listMode && listMode !== 'ol') flushList()
+            listMode = 'ol'
+            listItems.push(olMatch[1] || '')
+            continue
+        }
+
+        if (listMode) {
+            flushList()
+        }
+
+        paraLines.push(line.trim())
+    }
+
+    flushParagraph()
+    flushList()
+    flushCode()
+
+    return blocks.join('')
+}
+
+const aiAnalysisHtml = computed(() => markdownToHtml(aiAnalysis.value))
+const aiCommentaryHtml = computed(() => markdownToHtml(aiCommentary.value))
 
 const currentUnit = computed(() => {
     return prices[selectedBank.value]?.currency || 'CNY/g'
@@ -206,28 +353,63 @@ const sendHeartbeat = async () => {
 const fetchAiInsights = async () => {
     if (Object.keys(prices).length === 0) return
 
+    const snapshot = Object.values(prices).map(p => ({
+        name: p.name,
+        symbol: p.symbol,
+        currency: p.currency,
+        price: p.price,
+        prev_close: p.prev_close ?? null,
+        change: p.change,
+        change_pct: p.change_pct,
+        update_time: p.update_time
+    }))
+
+    const focus = prices[selectedBank.value]
+
+    const parseJson = (text: string) => {
+        const start = text.indexOf('{')
+        const end = text.lastIndexOf('}')
+        if (start === -1 || end === -1 || end <= start) throw new Error('Invalid JSON response')
+        return JSON.parse(text.slice(start, end + 1))
+    }
+
+    aiAnalysis.value = ''
+    aiCommentary.value = ''
+
     isAiAnalyzing.value = true
     try {
-        const priceSummary = Object.values(prices)
-            .map(p => `${p.name}: ${p.price}${p.currency} (涨跌: ${p.change_pct}%)`)
-            .join('\n')
-
-        const prompt = `你是一个专业的黄金分析师。以下是当前最新的金价行情：\n${priceSummary}\n\n请提供两部分内容：\n1. AI锐评：用一两句幽默、犀利或富有洞察力的话评价当前行情。\n2. AI分析：从专业角度简要分析当前趋势和可能的投资建议。\n请严格按照以下JSON格式返回：{"commentary": "锐评内容", "analysis": "分析内容"}`
+        const prompt = `你是一个专业的黄金分析师。请基于以下行情快照做分析，重点关注“焦点”对应的品种。\n\n焦点: ${focus?.name ?? selectedBank.value}\n行情快照(JSON):\n${JSON.stringify(snapshot, null, 2)}\n\n输出要求：\n1) 直接输出 Markdown，用清晰标题/要点/列表呈现重点\n2) 必须包含“昨日收盘价”字段（若无数据写“暂无数据”）\n3) 结构建议：\n   - # 结论（3条要点）\n   - ## 关键数据（现价/昨日收盘/涨跌幅/更新时间）\n   - ## 趋势与关键位（支撑/压力/动能）\n   - ## 风险与关注（3条）\n4) 语言专业、克制，不要夸大，不要输出投资承诺\n5) 严格输出 JSON（不要代码块、不要多余文字）：{\"analysis_md\":\"...\"}`
 
         const response = await aiService.chat([
-            { role: 'system', content: '你是一个黄金市场专家，擅长犀利点评和深度分析。' },
+            { role: 'system', content: '你是黄金市场分析师，擅长结构化输出与风险提示。' },
             { role: 'user', content: prompt }
         ])
 
-        const result = JSON.parse(response)
-        aiCommentary.value = result.commentary
-        aiAnalysis.value = result.analysis
+        const result = parseJson(response)
+        aiAnalysis.value = result.analysis_md || ''
     } catch (error) {
-        console.error('AI Insights error:', error)
-        aiCommentary.value = 'AI 思考断电了，请稍后再试。'
+        console.error('AI Analysis error:', error)
         aiAnalysis.value = '分析接口暂时不可用。'
     } finally {
         isAiAnalyzing.value = false
+    }
+
+    isAiCommenting.value = true
+    try {
+        const prompt = `你是一个擅长金融段子的锐评作者。基于以下行情快照，给出 1-2 句幽默、犀利但不冒犯的“AI锐评”。\n\n行情快照(JSON):\n${JSON.stringify(snapshot, null, 2)}\n\n要求：\n1) 输出 Markdown（建议用 > 引用块 或 **加粗**）\n2) 内容只要一句到两句中文\n3) 严格输出 JSON（不要代码块、不要多余文字）：{\"commentary_md\":\"...\"}`
+
+        const response = await aiService.chat([
+            { role: 'system', content: '你会用简短、有梗但不过界的语言点评行情。' },
+            { role: 'user', content: prompt }
+        ])
+
+        const result = parseJson(response)
+        aiCommentary.value = result.commentary_md || ''
+    } catch (error) {
+        console.error('AI Commentary error:', error)
+        aiCommentary.value = 'AI 思考断电了，请稍后再试。'
+    } finally {
+        isAiCommenting.value = false
     }
 }
 
@@ -422,7 +604,7 @@ onUnmounted(() => {
 
 .ai-insights-grid {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr;
     gap: 24px;
     margin-bottom: 24px;
 }
@@ -447,8 +629,66 @@ onUnmounted(() => {
     line-height: 1.7;
 }
 
-.commentary-card .ai-card-body {
+.ai-commentary-block {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--border-color);
+}
+
+.ai-commentary-inline {
     color: var(--accent-orange);
+}
+
+.ai-md :deep(h1),
+.ai-md :deep(h2),
+.ai-md :deep(h3),
+.ai-md :deep(h4) {
+    margin: 10px 0 8px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+}
+
+.ai-md :deep(p) {
+    margin: 8px 0;
+}
+
+.ai-md :deep(ul),
+.ai-md :deep(ol) {
+    margin: 8px 0;
+    padding-left: 18px;
+}
+
+.ai-md :deep(li) {
+    margin: 6px 0;
+}
+
+.ai-md :deep(strong) {
+    color: var(--text-main);
+}
+
+.ai-md :deep(code) {
+    background: #f6f6f6;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+
+.ai-md :deep(pre) {
+    background: #0b0b0b;
+    color: #f6f6f6;
+    padding: 12px;
+    border-radius: 10px;
+    overflow: auto;
+    margin: 10px 0;
+}
+
+.ai-md :deep(blockquote) {
+    margin: 8px 0;
+    padding: 10px 12px;
+    border-left: 3px solid var(--accent-orange);
+    background: #fff7f2;
+    border-radius: 10px;
 }
 
 .ai-loading-skeleton {
