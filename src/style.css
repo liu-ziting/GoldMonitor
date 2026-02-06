@@ -55,6 +55,12 @@ body {
   background-repeat: no-repeat;
 }
 
+@media (max-width: 768px) {
+  .minimal-card {
+    padding: 32px 12px 12px;
+  }
+}
+
 /* Terminal Command Button Style */
 .terminal-btn {
   font-family: var(--font-mono);

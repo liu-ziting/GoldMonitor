@@ -78,9 +78,9 @@ const updateChart = () => {
             }
         },
         grid: {
-            left: '30',
-            right: '30',
-            bottom: '30',
+            left: '10',
+            right: '10',
+            bottom: '10',
             top: '40',
             containLabel: true
         },
@@ -92,9 +92,11 @@ const updateChart = () => {
             axisTick: { show: true },
             axisLabel: {
                 color: '#636e72',
-                fontSize: 12,
+                fontSize: 10,
                 fontFamily: 'JetBrains Mono, monospace',
-                formatter: (value: number) => dayjs(value).utc().format('HH:mm')
+                formatter: (value: number) => dayjs(value).utc().format('HH:mm'),
+                hideOverlap: true,
+                minInterval: 3600 * 1000 * 2 // 至少2小时一个刻度，避免太拥挤
             },
             splitLine: { show: false }
         },
@@ -271,15 +273,21 @@ const handleResize = () => {
 
 @media (max-width: 768px) {
     .chart-card {
-        padding: 20px !important;
+        padding: 32px 8px 16px !important;
     }
     .trend-chart {
-        height: 300px;
+        height: 260px;
     }
     .chart-header {
-        margin-bottom: 20px;
-        flex-direction: column;
-        gap: 16px;
+        margin-bottom: 12px;
+        padding: 4px 8px 0;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+    .chart-title {
+        font-size: 15px;
     }
 }
 

@@ -652,6 +652,14 @@ onUnmounted(() => {
         padding: 20px 12px;
     }
 
+    .analysis-section {
+        margin-top: 32px;
+    }
+
+    .section-header {
+        margin-bottom: 20px;
+    }
+
     .section-title {
         font-size: 20px;
     }
@@ -661,11 +669,15 @@ onUnmounted(() => {
         gap: 16px;
     }
 
+    .analysis-card {
+        padding: 32px 0 0 !important;
+    }
+
     .analysis-controls {
-        padding: 12px 16px 16px;
+        padding: 12px 16px;
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
+        gap: 8px;
     }
 
     .control-label {
