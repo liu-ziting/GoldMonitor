@@ -1,8 +1,8 @@
-const WORKER_URL = 'https://silverera-api.lz-t.top';
+const WORKER_URL = 'https://ai-proxy.lz-t.top'
 
 export interface ChatMessage {
-    role: 'user' | 'assistant' | 'system';
-    content: string;
+    role: 'user' | 'assistant' | 'system'
+    content: string
 }
 
 export const aiService = {
@@ -13,9 +13,10 @@ export const aiService = {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ messages })
-        });
-        const data = await response.json();
-        if (data.error) throw new Error(data.error);
-        return data.choices[0].message.content;
+        })
+        const data = await response.json()
+        if (data.error) throw new Error(data.error)
+        return data.choices[0].message.content
     }
-};
+}
+
